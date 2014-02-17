@@ -102,19 +102,7 @@ int merge_chunks(const string & path_out, const size_t count_chunks, const size_
 }
 
 
-void delete_temporary_files(const string path_out, size_t count_chunks )
-{
-    for (size_t i = 0; i < count_chunks; ++i)
-    {
-        string path_cur = get_tmp_file_name(path_out, i);
-        int ret_code = std::remove(path_cur.c_str());
-        if (ret_code != 0)
-        {
-            std::cerr << "Error during file '" << path_cur << "' deletion: " << ret_code << '\n';
-        }
-    }
-    
-}
+
 
 int external_sort(const string path_in, const string path_out)
 {
