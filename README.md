@@ -10,3 +10,20 @@ External sort. Test task for interview
 1. По 10% данных читается в память и сортируется std::sort. Сортированные куски записываются во временные файлы. Можно было бы придумать что-то более умное, но ограничений на это не было, и я решил сделать по-простому.
 2. По 10% из каждого куска подгружается в память и сливается. Для слияния используется очередь с приоритетами. Результат записывается в выходной файл. Буферизации вывода нет. Надеемся на то, что реализовано в стандартной библиотеке и ОС.
 
+
+
+see tests  in tests folder
+verified by 'sort -g'
+
+example:
+
+# generage random file 
+external_sort.exe gen 1000000 large 
+
+# sort file
+external_sort.exe sort large large.out 
+
+#convert to txt
+external_sort.exe show large.out  > large.out.txt
+external_sort.exe show large  > large.txt
+
