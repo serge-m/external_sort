@@ -13,24 +13,22 @@ private:
     std::vector<wtype> vec_;    /// вектор-кэш. размер вектора будет соответсвовать максимальному размеру кэша. фактический размер будем хранить в len_
     size_t len_;                /// количество элементов в кэше. 
     size_t idx_;                /// последнего непрочитанного элемента кэша
-    size_t memory_size_;        /// максимальный размер (количество элементов в кэше)
+    size_t max_cache_size_;        /// максимальный размер (количество элементов в кэше)
 
 public:
     chunk_reader(const char * path, size_t memory_size)
         : fin_(path, std::ios::binary)
         , vec_(0)
-        , memory_size_(std::max( memory_size, 1u ))
+        , max_cache_size_(std::max( memory_size, 1u ))
     {
         if (fin_.fail())
         {
             throw std::exception();
         }
 
-        //vec_.reserve(memory_size);
         vec_.resize(memory_size);
         len_ = 0;
         idx_ = 0;
-        //it_ = vec_.begin();
     }
 
     /// тут нужно отдельно подумать, как делать копирование, и нужно ли. Поэтому просто закроем эти функции
@@ -45,7 +43,7 @@ public:
     {
         if (idx_ >= len_)
         {
-            vec_.resize(memory_size_);
+            vec_.resize(max_cache_size_);
             fin_.read(reinterpret_cast<char*>(&vec_[0]), sizeof(wtype)* vec_.size());
             size_t num_read = static_cast<size_t>(fin_.gcount()) / sizeof(wtype); // нужна проверка на кратность
             if (num_read == 0)

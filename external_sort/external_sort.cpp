@@ -91,8 +91,7 @@ int merge_chunks(const string & path_out, const size_t count_chunks, const size_
 {
     try
     {
-        k_way_merge merger;
-        merger.run(path_out, count_chunks, chunk_size_internal_sort);
+        run_k_way_merge(path_out, count_chunks, chunk_size_internal_sort);
     }
     catch (...) /// тут должно быть человеческое сообщение об ошибке
     {
