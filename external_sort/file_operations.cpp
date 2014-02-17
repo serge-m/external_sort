@@ -3,6 +3,7 @@
 #include <random>
 #include <fstream>
 #include "types.h"
+#include <iterator>
 using namespace std;
 
 const int error_return_value = 1;

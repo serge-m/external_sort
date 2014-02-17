@@ -19,7 +19,7 @@ public:
     chunk_reader(const char * path, size_t memory_size)
         : fin_(path, std::ios::binary)
         , vec_(0)
-        , max_cache_size_(std::max( memory_size, 1u ))
+        , max_cache_size_(std::max<size_t>( memory_size, 1u ))
     {
         if (fin_.fail())
         {
