@@ -77,6 +77,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="external_sort.cpp" />
+    <ClCompile Include="file_operations.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="chunk_reader.h" />

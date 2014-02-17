@@ -2,7 +2,7 @@
 #include <fstream>
 #include <string>
 #include <stdexcept>  
-#include <random>
+
 #include <algorithm>
 #include "types.h"
 #include "k_way_merge.h"
@@ -26,44 +26,8 @@ void print_usage()
         ;
 }
 
-int show_binary_file(string path)
-{
-    fstream f(path.c_str(), ios::binary | ios::in);
-    if (f.fail())
-    {
-        cout << "Unable to open file '" << path << "' for reading" << endl;
-        return error_return_value;
-    }
-    const size_t chunk_size = 512;
-    std::vector<wtype> a(chunk_size);
 
-    while (f)
-    {
-        f.read(reinterpret_cast<char*>(&a[0]), sizeof(wtype)* a.size());
-        size_t num_read = static_cast<size_t>(f.gcount()) / sizeof(wtype);
-        
-        std::ostream_iterator<wtype> out_it(std::cout, "\n");
-        std::copy(a.begin(), a.begin() + num_read, out_it);
-
-    }
-
-    return 0;
-}
-
-void generate_random_file(unsigned int n, string path)
-{
-    fstream f(path.c_str(), ios::binary | ios::out);
-    std::default_random_engine e{n}; // seed n
-    std::uniform_int_distribution<int> d{ 0, std::numeric_limits<int>::max() };
-    for (unsigned int i = 0; i < n; ++i)
-    {
-        wtype number = d(e);
-        //cout << number << endl;
-        f.write( reinterpret_cast<const char*>(&number), sizeof(number));
-    }
-    f.close();
-}
-
+/// сортируем куски файла, которые могут поместиться в память
 int sort_chunks(fstream & fin,
     const string path_out,
     const size_t n,
@@ -86,7 +50,7 @@ int sort_chunks(fstream & fin,
 }
 
 
-
+/// объединяем сортированные куски
 int merge_chunks(const string & path_out, const size_t count_chunks, const size_t chunk_size_internal_sort)
 {
     try
@@ -95,7 +59,7 @@ int merge_chunks(const string & path_out, const size_t count_chunks, const size_
     }
     catch (...) /// тут должно быть человеческое сообщение об ошибке
     {
-        cout << "Sorting failed" << endl;
+        cerr << "Sorting failed" << endl;
         return error_return_value;
     }
     return 0;
@@ -111,7 +75,7 @@ int external_sort(const string path_in, const string path_out)
     fstream fin(path_in.c_str(), ios::binary | ios::in);
     if (!fin)
     {
-        cout << "Unable to open input file '" << path_in << "'" << endl;
+        cerr << "Unable to open input file '" << path_in << "'" << endl;
         return error_return_value;
     }
     // get length of file:
@@ -121,7 +85,7 @@ int external_sort(const string path_in, const string path_out)
     
     if (length <= 0)
     {
-        cout << "Unable to read input file '" << path_in << "'" << endl;
+        cerr << "Unable to read input file '" << path_in << "'" << endl;
         return error_return_value;
     }
 
@@ -131,7 +95,7 @@ int external_sort(const string path_in, const string path_out)
 
     if (ulength != n * sizeof(wtype)) // на всякий
     {
-        cout << "Size of file is not multiple of integer size" << endl;
+        cerr << "Size of file is not multiple of integer size" << endl;
         return error_return_value;
     }
 
@@ -174,13 +138,13 @@ int main( int argc, char *argv[] )
         }
         catch (const invalid_argument & )
         {
-            cout << "Unable to convert parameter '" << arg2 << "' to a number";
+            cerr << "Unable to convert parameter '" << arg2 << "' to a number";
             return error_return_value;
         }
 
         if (arg3 == "")
         {
-            cout << "Output file name was not specified" << endl;
+            cerr << "Output file name was not specified" << endl;
             print_usage();
             return error_return_value;
         }
@@ -190,7 +154,7 @@ int main( int argc, char *argv[] )
     {
         if (arg2 == "")
         {
-            cout << "Output file name was not specified" << endl;
+            cerr << "Output file name was not specified" << endl;
             print_usage();
             return error_return_value;
         }
@@ -201,7 +165,7 @@ int main( int argc, char *argv[] )
     {
         if (arg2 == "" || arg3 == "")
         {
-            cout << "Input/output file names were not specified" << endl;
+            cerr << "Input/output file names were not specified" << endl;
             print_usage();
             return error_return_value;
         }
@@ -209,7 +173,7 @@ int main( int argc, char *argv[] )
     }
     else
     {
-        cout << "Unsupported mode '" << mode << "'" << endl;
+        cerr << "Unsupported mode '" << mode << "'" << endl;
         print_usage();
         return error_return_value;
     }
