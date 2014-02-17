@@ -78,6 +78,11 @@
   <ItemGroup>
     <ClCompile Include="external_sort.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="chunk_reader.h" />
+    <ClInclude Include="k_way_merge.h" />
+    <ClInclude Include="types.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
