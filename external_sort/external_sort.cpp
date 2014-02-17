@@ -6,7 +6,13 @@
 #include <algorithm>
 #include "types.h"
 #include "k_way_merge.h"
+#include "file_operations.h"
 using namespace std;
+
+
+const double percent_in_ram = 0.1;                  /// доля данных из файла, которую можно прочитать в память 
+const double percent_in_ram_for_merge = percent_in_ram; 
+
 
 const int error_return_value = 1;
 
@@ -41,11 +47,6 @@ int show_binary_file(string path)
 
     }
 
-    /*std::copy(
-        std::istreambuf_iterator<int>(f),
-        std::istreambuf_iterator<int>(),
-        std::ostreambuf_iterator<int>(cout));
-        f.close();*/
     return 0;
 }
 
@@ -77,7 +78,7 @@ int sort_chunks(fstream & fin,
         size_t num_read = static_cast<size_t>(fin.gcount()) / sizeof(wtype);
         std::sort(a.begin(), a.begin() + num_read);
 
-        string path_out_current = path_out + to_string(count_chunks); /// имя временного файла
+        string path_out_current = get_tmp_file_name(path_out, count_chunks); /// имя временного файла
         fstream fout(path_out_current.c_str(), ios::binary | ios::out);
         fout.write(reinterpret_cast<const char *>(&a[0]), num_read * sizeof(wtype));
     }
@@ -88,15 +89,36 @@ int sort_chunks(fstream & fin,
 
 int merge_chunks(const string & path_out, const size_t count_chunks, const size_t chunk_size_internal_sort)
 {
-    k_way_merge merger;
-    merger.run(path_out, count_chunks, chunk_size_internal_sort);
+    try
+    {
+        k_way_merge merger;
+        merger.run(path_out, count_chunks, chunk_size_internal_sort);
+    }
+    catch (...) /// тут должно быть человеческое сообщение об ошибке
+    {
+        cout << "Sorting failed" << endl;
+        return error_return_value;
+    }
     return 0;
+}
+
+
+void delete_temporary_files(const string path_out, size_t count_chunks )
+{
+    for (size_t i = 0; i < count_chunks; ++i)
+    {
+        string path_cur = get_tmp_file_name(path_out, i);
+        int ret_code = std::remove(path_cur.c_str());
+        if (ret_code != 0)
+        {
+            std::cerr << "Error during file '" << path_cur << "' deletion: " << ret_code << '\n';
+        }
+    }
+    
 }
 
 int external_sort(const string path_in, const string path_out)
 {
-    const double percent_in_ram = 0.1;
-    const double percent_in_ram_for_merge = 0.5;
     size_t n = 0;
 
     fstream fin(path_in.c_str(), ios::binary | ios::in);
@@ -133,6 +155,9 @@ int external_sort(const string path_in, const string path_out)
     sort_chunks(fin, path_out, n, chunk_size_internal_sort, count_chunks );
 
     merge_chunks(path_out, count_chunks, static_cast<size_t>(chunk_size_internal_sort * percent_in_ram_for_merge)); /// теперь нужно из каждого куска прочитать по-немногу
+
+    delete_temporary_files(path_out, count_chunks);
+
 
     return 0;
 }

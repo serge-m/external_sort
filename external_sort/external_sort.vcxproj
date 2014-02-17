@@ -80,6 +80,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="chunk_reader.h" />
+    <ClInclude Include="file_operations.h" />
     <ClInclude Include="k_way_merge.h" />
     <ClInclude Include="types.h" />
   </ItemGroup>

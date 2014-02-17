@@ -2,23 +2,24 @@
 #define chunk_reader_h__
 
 #include <fstream>
+#include <algorithm> 
 #include "types.h"
 
 
 class chunk_reader
 {
 private:
-    std::ifstream fin_;
-    std::vector<wtype> vec_;
-    size_t len_;
-    size_t idx_;
-    size_t memory_size_;
+    std::ifstream fin_;         /// хендлер входного файла
+    std::vector<wtype> vec_;    /// вектор-кэш. размер вектора будет соответсвовать максимальному размеру кэша. фактический размер будем хранить в len_
+    size_t len_;                /// количество элементов в кэше. 
+    size_t idx_;                /// последнего непрочитанного элемента кэша
+    size_t memory_size_;        /// максимальный размер (количество элементов в кэше)
 
 public:
-    chunk_reader(const char * path, size_t memory_size )
-        : fin_( path, std::ios::binary )
-        , vec_( 0 )
-        , memory_size_(memory_size)
+    chunk_reader(const char * path, size_t memory_size)
+        : fin_(path, std::ios::binary)
+        , vec_(0)
+        , memory_size_(std::max( memory_size, 1u ))
     {
         if (fin_.fail())
         {
@@ -32,6 +33,14 @@ public:
         //it_ = vec_.begin();
     }
 
+    /// тут нужно отдельно подумать, как делать копирование, и нужно ли. Поэтому просто закроем эти функции
+    chunk_reader(const chunk_reader&) = delete;
+    chunk_reader& operator=(const chunk_reader&) = delete;
+
+
+    /// получаем следующий элемент. Читаем из временного файла в память пачками
+    /// если все хорошо, то будем возвращать true
+    /// если файл, кончился, возвратим false
     bool get_next(wtype &result)
     {
         if (idx_ >= len_)

@@ -4,6 +4,8 @@
 #include <memory>
 #include <vector>
 #include "chunk_reader.h"
+#include "file_operations.h"
+
 
 class qelement
 {
@@ -35,13 +37,13 @@ public:
 
         for (size_t i = 0; i < count_chunks; ++i)
         {
-            std::string path_out_current = path_out + std::to_string(i); /// им€ временного файла
+            std::string path_out_current = get_tmp_file_name( path_out, i); /// им€ временного файла
             std::shared_ptr<chunk_reader> cur_reader_ptr(new chunk_reader(path_out_current.c_str(), num_elements_in_memory));
             cr.push_back(cur_reader_ptr);
 
         }
 
-        for (size_t i = 0; i < count_chunks; ++i)
+        for (size_t i = 0; i < count_chunks; ++i) /// заполн€ем кучу
         {
             qelement qe;
             qe.reader_ = cr[i].get();
@@ -51,7 +53,9 @@ public:
 
         while (!q_.empty())
         {
-            qelement qe = q_.top();
+            /// здесь конечно, хорошо было бы не удал€ть-вставл€ть элемент из кучи, 
+            /// а делать изменение его приоритета. Ќо пока оставим, как проще.
+            qelement qe = q_.top(); 
             q_.pop();
             fout.write(reinterpret_cast<const char*>(&qe.value_), sizeof(qe.value_)); /// будем наде€тьс€ на хорошую буферизацию операционной системы - не будем делать дополнительный буффер дл€ вывода
             if (qe.reader_->get_next(qe.value_))
